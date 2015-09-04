@@ -85,6 +85,9 @@ function field_collection_bulkupload_add_form(&$element, $name, $language, $buil
       '#value' => t('Start upload'),
       '#validate' => array(),
       '#submit' => array('field_collection_bulkupload_submit'),
+	  '#limit_validation_errors' => array(
+        array($name),
+      ),
       '#ajax' => array(
         'path' => '', //updated in process when we have all the data
         //'wrapper' => 'edit-' . str_replace('_', '-', $name),
