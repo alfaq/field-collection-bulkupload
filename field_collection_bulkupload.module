@@ -11,6 +11,7 @@
 /**
  * Implements hook_filefield_sources_info().
  */
+/*
 function field_collection_bulkupload_filefield_sources_info() {
   $source = array();
   $source['fc_plupload'] = array(
@@ -21,6 +22,7 @@ function field_collection_bulkupload_filefield_sources_info() {
   );
   return $source;
 }
+*/
 
 /**
  * Implements hook_field_attach_form().
@@ -43,12 +45,14 @@ function field_collection_bulkupload_field_attach_form($entity_type, $entity, &$
  * Add the proper upload stuff to field_collections which want it.
  */
 function field_collection_bulkupload_add_form(&$element, $name, $language, $build_id) {
-  $item = $element[$language][0];
+  //$item = $element[$language][0];
+  $item = $element[$element['#language']][0];
   $instance = field_collection_bulkupload_get_imagefield($item['#bundle']);
 
   if ($instance) {
     $max_filesize = !empty($instance['settings']['max_filesize']) ? parse_size($instance['settings']['max_filesize']) : parse_size(file_upload_max_size());
     $id = 'edit-' . str_replace('_', '-', $instance['field_name']);
+	$element['#id'] = $id;
 
     $element['field_collection_bulkupload'] = array(
       '#weight' => -100,
@@ -64,13 +68,15 @@ function field_collection_bulkupload_add_form(&$element, $name, $language, $buil
       '#title' => t('Select one or more files to upload'),
       // Even though filefield does validation on submit, this is required for
       // client side validation as well as proper file munging during upload.
-      '#upload_validators' => $item[$instance['field_name']][$language][0]['#upload_validators'],
+      //'#upload_validators' => $item[$instance['field_name']][$language][0]['#upload_validators'],
+	  '#upload_validators' => $item[$instance['field_name']][$element['#language']][0]['#upload_validators'],
       '#plupload_settings' => array(
           'max_file_size' => $max_filesize,
           'chunk_size' => '1mb',
           'runtimes' => 'html5,flash,silverlight,html4',
         ),
       '#field_name' => $instance['field_name'],
+	  '#id' => $id,
       '#value_callback' => 'field_collection_bulkupload_element_value',
     );
     $element['field_collection_bulkupload']['upload_button'] = array(
@@ -81,7 +87,8 @@ function field_collection_bulkupload_add_form(&$element, $name, $language, $buil
       '#submit' => array('field_collection_bulkupload_submit'),
       '#ajax' => array(
         'path' => '', //updated in process when we have all the data
-        'wrapper' => 'edit-' . str_replace('_', '-', $name),
+        //'wrapper' => 'edit-' . str_replace('_', '-', $name),
+		'wrapper' => $id,
         'method' => 'replace',
         'effect' => 'fade',
         'event' => 'fbc_pud_update',
